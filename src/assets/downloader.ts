@@ -49,8 +49,20 @@ export async function downloadAssets(
         }
 
         const buffer = Buffer.from(await response.arrayBuffer());
+
+        if (buffer.length === 0) {
+          log.warn(`Empty response body for ${absoluteUrl}, skipping`);
+          return asset;
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+        if (!isValidAssetContent(buffer, contentType, asset.type)) {
+          log.warn(`Invalid or corrupt asset from ${absoluteUrl} (${buffer.length} bytes, ${contentType}), skipping`);
+          return asset;
+        }
+
         const hash = hashContent(buffer);
-        const ext = extname(new URL(absoluteUrl).pathname) || guessExtension(response.headers.get("content-type"));
+        const ext = extname(new URL(absoluteUrl).pathname) || guessExtension(contentType);
         const subdir = getSubdir(asset.type);
         const hashedFilename = `${hash}${ext}`;
         const localPath = resolve(outputDir, subdir, hashedFilename);
@@ -61,7 +73,7 @@ export async function downloadAssets(
           ...asset,
           localPath,
           hashedFilename,
-          mimeType: response.headers.get("content-type") || undefined,
+          mimeType: contentType || undefined,
           size: buffer.length,
         };
       } catch (err) {
@@ -106,6 +118,49 @@ function getSubdir(type: AssetEntry["type"]): string {
     case "svg": return "svgs";
     default: return "images";
   }
+}
+
+// PNG: 89 50 4E 47, JPEG: FF D8 FF, GIF: 47 49 46, WebP: 52 49 46 46 ...  57 45 42 50
+const IMAGE_SIGNATURES: [number[], string][] = [
+  [[0x89, 0x50, 0x4e, 0x47], "png"],
+  [[0xff, 0xd8, 0xff], "jpeg"],
+  [[0x47, 0x49, 0x46, 0x38], "gif"],
+  [[0x52, 0x49, 0x46, 0x46], "webp/riff"],
+];
+
+function isValidAssetContent(buffer: Buffer, contentType: string, type: AssetEntry["type"]): boolean {
+  // Fonts: just check minimum reasonable size (a valid font is at least ~100 bytes)
+  if (type === "font") return buffer.length >= 100;
+
+  // SVGs: should contain an <svg tag
+  if (type === "svg" || contentType.includes("svg")) {
+    const text = buffer.toString("utf-8", 0, Math.min(buffer.length, 1024));
+    return text.includes("<svg") || text.includes("<?xml");
+  }
+
+  // Images: check for valid magic bytes or reasonable HTML error pages returned as images
+  if (type === "image") {
+    // Reject tiny images that are likely broken (< 67 bytes is smaller than any valid image)
+    if (buffer.length < 67) return false;
+
+    // Check if the server returned an HTML error page instead of an image
+    const head = buffer.toString("utf-8", 0, Math.min(buffer.length, 64));
+    if (head.trimStart().startsWith("<!DOCTYPE") || head.trimStart().startsWith("<html")) return false;
+
+    // Check for known image magic bytes
+    for (const [sig] of IMAGE_SIGNATURES) {
+      if (sig.every((byte, i) => buffer[i] === byte)) return true;
+    }
+
+    // ICO files: 00 00 01 00
+    if (buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0x01 && buffer[3] === 0x00) return true;
+
+    // If content-type says image but no known signature, still allow it
+    if (contentType.startsWith("image/")) return true;
+  }
+
+  // For "other" types, allow anything non-empty
+  return true;
 }
 
 function guessExtension(contentType: string | null): string {

@@ -112,7 +112,7 @@ export async function detectIconLibraries(page: Page): Promise<IconLibrary[]> {
 
   // Check SVG sprite usage
   const hasSvgSprites = await page.evaluate(() => {
-    return document.querySelectorAll("svg use[href], svg use[xlink\:href]").length > 0;
+    return document.querySelectorAll("svg use[href], svg use[xlink\\:href]").length > 0;
   });
 
   if (hasSvgSprites && !seen.has("SVG Sprites")) {

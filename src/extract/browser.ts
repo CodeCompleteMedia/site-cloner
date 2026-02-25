@@ -36,7 +36,11 @@ export async function navigateAndWait(
 ): Promise<void> {
   const { timeout = 30000, scrollForLazy = true } = options;
   log.info(`Navigating to ${url}`);
-  await page.goto(url, { waitUntil: "networkidle", timeout });
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout });
+  // Give the page time to finish rendering after DOM is ready
+  await page.waitForLoadState("networkidle").catch(() => {
+    log.info("networkidle not reached, continuing after domcontentloaded");
+  });
 
   if (scrollForLazy) {
     log.info("Scrolling for lazy-loaded content...");
