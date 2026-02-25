@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "url": "https://example.com",
+    "title": "Example Domain",
+    "description": "Example page for testing",
+    "extractedAt": "2025-01-01T00:00:00.000Z",
+    "viewports": [375, 768, 1440],
+    "iconLibraries": [],
+    "routes": [
+      { "path": "/", "label": "Home", "isExternal": false },
+      { "path": "/about", "label": "About", "isExternal": false },
+      { "path": "https://external.com", "label": "External", "isExternal": true }
+    ]
+  },
+  "tokens": {
+    "cssVariables": [
+      { "name": "--primary-color", "value": "#3b82f6", "scope": ":root" },
+      { "name": "--text-color", "value": "#1f2937", "scope": ":root" },
+      { "name": "--bg-color", "value": "#ffffff", "scope": ":root" }
+    ],
+    "fonts": [
+      {
+        "family": "Inter",
+        "weights": ["400", "500", "600", "700"],
+        "styles": ["normal"]
+      }
+    ],
+    "colors": ["rgb(59, 130, 246)", "rgb(31, 41, 55)", "rgb(255, 255, 255)"],
+    "spacingValues": [4, 8, 12, 16, 24, 32, 48, 64]
+  },
+  "sections": [],
+  "assetManifest": {
+    "baseUrl": "https://example.com",
+    "assets": [
+      {
+        "originalUrl": "/images/logo.png",
+        "localPath": "",
+        "hashedFilename": "",
+        "type": "image"
+      },
+      {
+        "originalUrl": "/images/hero.jpg",
+        "localPath": "",
+        "hashedFilename": "",
+        "type": "image"
+      }
+    ]
+  }
+}

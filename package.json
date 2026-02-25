@@ -1,0 +1,47 @@
+{
+  "name": "clone-engine",
+  "version": "0.1.0",
+  "description": "Deterministic website extraction, screenshotting, and pixel-diffing engine for site cloning",
+  "type": "module",
+  "bin": {
+    "clone-engine": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["website-cloner", "screenshot", "pixel-diff", "sveltekit"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "citty": "^0.1.6",
+    "consola": "^3.4.0",
+    "pathe": "^2.0.3",
+    "playwright": "^1.50.0",
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.33.5",
+    "defu": "^6.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/pngjs": "^6.0.5",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
+  }
+}

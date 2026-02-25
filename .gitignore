@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# Extraction output
+extraction/
+screenshots/
+diff-output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
